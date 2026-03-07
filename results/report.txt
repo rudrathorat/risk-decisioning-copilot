@@ -4,38 +4,45 @@ Credit Risk Modeling and Decision Framework - Analysis Report
 
 MODEL PERFORMANCE
 ------------------------------------------------------------
-Best Model: logistic_regression
-ROC-AUC: 0.7779
-Gini Coefficient: 0.5557
-KS Statistic: 0.4429
+Best Model: random_forest
+ROC-AUC: 0.6996
+Gini Coefficient: 0.3993
+KS Statistic: 0.3952
 
 CLASSIFICATION METRICS
 ------------------------------------------------------------
-Precision: 0.6154
-Recall: 0.4000
-F1-Score: 0.4848
-Accuracy: 0.7450
+Precision: 0.5405
+Recall: 0.3333
+F1-Score: 0.4124
+Accuracy: 0.7150
 
 DECISION DISTRIBUTION
 ------------------------------------------------------------
 decision
-Approve                    101
-Reject                      59
-Approve with Conditions     40
+Approve                    91
+Reject                     58
+Approve with Conditions    51
 
 RISK BAND ANALYSIS
 ------------------------------------------------------------
 risk_band  count  avg_score  min_score  max_score  default_rate  total_defaults  cumulative_default_rate
-   Band_1     40   0.058800   0.009248   0.093137         0.050               2                 0.050000
-   Band_2     40   0.136792   0.097816   0.186606         0.150               6                 0.100000
-   Band_3     40   0.250272   0.189773   0.322657         0.275              11                 0.158333
-   Band_4     40   0.402966   0.324217   0.496842         0.400              16                 0.218750
-   Band_5     40   0.633044   0.499252   0.814152         0.625              25                 0.300000
+   Band_1     40   0.099912   0.033375   0.158659         0.175               7                 0.175000
+   Band_2     40   0.189335   0.160655   0.225975         0.150               6                 0.162500
+   Band_3     40   0.274394   0.228824   0.321415         0.175               7                 0.166667
+   Band_4     40   0.393194   0.322427   0.485819         0.475              19                 0.243750
+   Band_5     40   0.604686   0.488204   0.814889         0.525              21                 0.300000
 
 MONITORING
 ------------------------------------------------------------
-Status: Alert
-PSI: 0.0702
+Status: Healthy
+PSI: 0.0805
+
+PORTFOLIO RISK INSIGHTS
+------------------------------------------------------------
+Highest default segment: Duration >= 24 months AND low savings
+Expected default rate: 41.3%
+Applicants in segment: 61
+Recommendation: Tighten approval threshold for this segment.
 
 FILES GENERATED
 ------------------------------------------------------------
@@ -43,4 +50,5 @@ FILES GENERATED
 - results/metrics.json
 - results/risk_bands.csv
 - results/feature_importance.csv
+- results/copilot_reports/
 - results/report.txt

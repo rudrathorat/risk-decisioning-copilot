@@ -21,8 +21,11 @@ from src.evaluation import CreditRiskMetrics, print_evaluation_report
 from src.monitoring import ModelMonitor
 from src.decisioning import DecisionEngine, ProfitOptimizer, EarlyWarningSystem
 from src.explainability import ModelExplainer
+from src.underwriting_copilot import UnderwritingCopilot, get_portfolio_risk_insights
 
 from sklearn.model_selection import train_test_split
+
+import json
 
 def main():
     print("=" * 60)
@@ -129,7 +132,58 @@ def main():
     print(f"  Monitoring status: {monitoring_report['overall_status']}")
     print(f"  PSI: {monitoring_report['score_drift']['psi']:.4f}")
     
-    print("\n[9/9] Saving results...")
+    # 9. AI Underwriting Copilot
+    print("\n[9/10] Generating AI underwriting reports...")
+    copilot = UnderwritingCopilot()
+    explainer = ModelExplainer(best_model, X_train_eng.columns.tolist())
+    try:
+        explainer.fit_shap_explainer(X_train_eng, explainer_type="auto")
+    except Exception:
+        pass
+    copilot_reports_dir = Path(__file__).parent / "results" / "copilot_reports"
+    copilot_reports_dir.mkdir(parents=True, exist_ok=True)
+    sample_size = min(5, len(X_test_eng))
+    for i in range(sample_size):
+        applicant_raw = X_test_raw.iloc[i : i + 1]
+        applicant_engineered = X_test_eng.iloc[i : i + 1]
+        risk_score = float(y_pred_proba[i])
+        risk_band = decisions.iloc[i]["risk_band"]
+        decision = decisions.iloc[i]["decision"]
+        top_risk_drivers = None
+        try:
+            explanation = explainer.explain_prediction(X_test_eng, idx=i)
+            fc = explanation.get("feature_contributions", {})
+            top_risk_drivers = dict(
+                sorted(fc.items(), key=lambda x: abs(x[1]), reverse=True)[:10]
+            )
+        except Exception:
+            pass
+        report = copilot.generate_report(
+            applicant_raw=applicant_raw,
+            applicant_engineered=applicant_engineered,
+            risk_score=risk_score,
+            risk_band=risk_band,
+            decision=decision,
+            top_risk_drivers=top_risk_drivers,
+        )
+        report_dict = {
+            "applicant_summary": report.applicant_summary,
+            "risk_score": report.risk_score,
+            "risk_band": report.risk_band,
+            "key_risk_drivers": report.key_risk_drivers,
+            "ai_interpretation": report.ai_interpretation,
+            "recommended_decision": report.recommended_decision,
+            "suggested_conditions": report.suggested_conditions,
+            "suggested_terms": report.suggested_terms,
+            "what_if_results": report.what_if_results,
+        }
+        report_path = copilot_reports_dir / f"report_{i}.json"
+        with open(report_path, "w") as f:
+            json.dump(report_dict, f, indent=2, default=str)
+        print(f"  ✓ Saved {report_path.name}")
+    print(f"  ✓ Saved {sample_size} copilot reports to results/copilot_reports/")
+    
+    print("\n[10/10] Saving results...")
     
     # Create output directory
     output_dir = Path(__file__).parent / "results"
@@ -158,7 +212,6 @@ def main():
         'accuracy': float(metrics['accuracy'])
     }
     
-    import json
     with open(output_dir / "metrics.json", 'w') as f:
         json.dump(metrics_summary, f, indent=2)
     print(f"  ✓ Saved metrics to results/metrics.json")
@@ -178,6 +231,18 @@ def main():
     )
     risk_band_metrics.to_csv(output_dir / "risk_bands.csv", index=False)
     print(f"  ✓ Saved risk band analysis to results/risk_bands.csv")
+    
+    # Portfolio risk insights (highest-default segment)
+    portfolio_df = X_test_raw.copy()
+    portfolio_df["risk_score"] = y_pred_proba
+    portfolio_insights = get_portfolio_risk_insights(
+        portfolio_df,
+        risk_score_col="risk_score",
+        duration_col="duration",
+        savings_col="savings",
+        duration_high_threshold=24,
+        savings_low_values=["A61", "A62"],
+    )
     
     # Create summary report
     report = f"""
@@ -211,12 +276,20 @@ MONITORING
 Status: {monitoring_report['overall_status']}
 PSI: {monitoring_report['score_drift']['psi']:.4f}
 
+PORTFOLIO RISK INSIGHTS
+{'-' * 60}
+Highest default segment: {portfolio_insights['segment_description']}
+Expected default rate: {portfolio_insights['default_rate']:.1%}
+Applicants in segment: {portfolio_insights['count']}
+Recommendation: {portfolio_insights['recommendation']}
+
 FILES GENERATED
 {'-' * 60}
 - results/predictions.csv
 - results/metrics.json
 - results/risk_bands.csv
 - results/feature_importance.csv
+- results/copilot_reports/
 - results/report.txt
 """
     

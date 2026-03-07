@@ -1,0 +1,21 @@
+{
+  "applicant_summary": {
+    "credit_amount": 2520,
+    "duration": 27,
+    "age": 23,
+    "employment": "A73",
+    "savings": "A63",
+    "purpose": "A43",
+    "installment_rate": 4,
+    "housing": "A152",
+    "job": "A172"
+  },
+  "risk_score": 0.3470109299269792,
+  "risk_band": "Medium",
+  "key_risk_drivers": [],
+  "ai_interpretation": "The applicant shows medium credit risk (probability of default: 34.7%). Recommended decision: Approve with Conditions.",
+  "recommended_decision": "Approve with Conditions",
+  "suggested_conditions": [],
+  "suggested_terms": null,
+  "what_if_results": null
+}

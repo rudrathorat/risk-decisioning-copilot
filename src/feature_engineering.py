@@ -234,8 +234,9 @@ class FeatureEngineer:
         
         return X_processed
     
-    def create_interactions(self, X: pd.DataFrame, feature_pairs: List[Tuple[str, str]] = None) -> pd.DataFrame:
-        """Create interaction features."""
+    def create_interactions(self, X: pd.DataFrame, feature_pairs: List[Tuple[str, str]] = None,
+                            skip_append: bool = False) -> pd.DataFrame:
+        """Create interaction features. Use skip_append=True when calling from transform()."""
         if feature_pairs is None:
             # Default interactions for credit risk
             feature_pairs = [
@@ -252,12 +253,14 @@ class FeatureEngineer:
                 if X[feat2].abs().min() > 1e-6:
                     interaction_name = f'{feat1}_div_{feat2}'
                     X_interactions[interaction_name] = X[feat1] / (X[feat2] + 1e-6)
-                    self.feature_names.append(interaction_name)
+                    if not skip_append:
+                        self.feature_names.append(interaction_name)
                 
                 # Product interaction
                 interaction_name = f'{feat1}_mul_{feat2}'
                 X_interactions[interaction_name] = X[feat1] * X[feat2]
-                self.feature_names.append(interaction_name)
+                if not skip_append:
+                    self.feature_names.append(interaction_name)
         
         return X_interactions
     
@@ -310,9 +313,10 @@ class FeatureEngineer:
             X_cat_processed = self.transform_categorical(X_cat)
             X_processed_list.append(X_cat_processed)
         
-        # Create interactions (using original features)
-        if self.config and getattr(self.config, 'use_interactions', True):
-            X_interactions = self.create_interactions(X)
+        # Create interactions so validation/test match training (even when config is None)
+        use_interactions = getattr(self.config, 'use_interactions', True) if self.config else True
+        if use_interactions:
+            X_interactions = self.create_interactions(X, skip_append=True)
             if not X_interactions.empty:
                 X_processed_list.append(X_interactions)
         

@@ -1,0 +1,21 @@
+{
+  "applicant_summary": {
+    "credit_amount": 1913,
+    "duration": 18,
+    "age": 36,
+    "employment": "A72",
+    "savings": "A64",
+    "purpose": "A49",
+    "installment_rate": 3,
+    "housing": "A152",
+    "job": "A173"
+  },
+  "risk_score": 0.22147794765053283,
+  "risk_band": "Low",
+  "key_risk_drivers": [],
+  "ai_interpretation": "The applicant shows low credit risk (probability of default: 22.1%). Recommended decision: Approve.",
+  "recommended_decision": "Approve",
+  "suggested_conditions": [],
+  "suggested_terms": null,
+  "what_if_results": null
+}

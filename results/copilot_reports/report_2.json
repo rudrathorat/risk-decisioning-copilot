@@ -1,0 +1,21 @@
+{
+  "applicant_summary": {
+    "credit_amount": 1024,
+    "duration": 24,
+    "age": 48,
+    "employment": "A72",
+    "savings": "A61",
+    "purpose": "A43",
+    "installment_rate": 4,
+    "housing": "A152",
+    "job": "A173"
+  },
+  "risk_score": 0.5030140546958329,
+  "risk_band": "High",
+  "key_risk_drivers": [],
+  "ai_interpretation": "The applicant shows high credit risk (probability of default: 50.3%). Recommended decision: Reject.",
+  "recommended_decision": "Reject",
+  "suggested_conditions": [],
+  "suggested_terms": null,
+  "what_if_results": null
+}
