@@ -4,7 +4,7 @@
 
 ```bash
 # 1. Navigate to project directory
-cd lending-risk-project
+cd risk-decisioning-copilot
 
 # 2. Create and activate virtual environment (optional but recommended)
 python -m venv venv
